@@ -79,8 +79,6 @@ def onboard_model(access_key: str, api_url: str,
     # Set reference dataset
     arthur_model.set_reference_for_stage(Stage.ModelPipelineInput, X_train)
 
-
-
 if __name__== "__main__":
     parser = argparse.ArgumentParser(add_help = False)
     parser.add_argument("-u", "--api_url", dest="api_url", required = False,
