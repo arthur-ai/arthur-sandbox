@@ -15,7 +15,6 @@ If it's your first time onboarding your model to Arthur, check out some of the [
 * [Pulling Metrics](./SDK_examples/sdk_retrieve_metrics_and_data.ipynb): includes examples of fetching metrics from the platform for further analysis and visualization.
 * [Quickstart](./example_projects/credit_risk/notebooks/Quickstart.ipynb): Demo of onboarding and sending inferences with a credit risk model. 
 
->>>>>>> master
 
 ## Docs
 For full detail about the SDK and API, refer to the [Arthur documentation](docs.arthur.ai).
