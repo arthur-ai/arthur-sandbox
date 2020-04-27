@@ -31,12 +31,10 @@ def onboard_model(access_key: str, api_url: str,
     arthur_model = connection.model(**MODEL_METADATA)
 
     # Set up model basics
+    logging.info("Setting data schema")
     arthur_model.from_dataframe(transformations(X_train), Stage.ModelPipelineInput)
     arthur_model.from_dataframe(Y_train, Stage.GroundTruth)
     arthur_model.set_positive_class(1)
-
-    # Set reference dataset
-    arthur_model.set_reference_for_stage(Stage.ModelPipelineInput, X_train)
 
     # Set up bias monitoring for sensitive attributes
     arthur_model.get_attribute("SEX",
@@ -67,14 +65,19 @@ def onboard_model(access_key: str, api_url: str,
                                        1: "CreditDefault"})
 
     # Set up explainability
+    logging.info("Enabling explainability")
     path = Path(__file__).resolve()
     arthur_model.enable_explainability(
         df=X_train.head(50),
-        project_directory=path.parents[0],
+        project_directory=path.parents[1],
         requirements_file=os.path.join(path.parents[1], "requirements.txt"),
         user_predict_function_import_path="xai_entrypoint")
+
+    logging.info("Saving model")
     arthur_model.save()
 
+    # Set reference dataset
+    arthur_model.set_reference_for_stage(Stage.ModelPipelineInput, X_train)
 
 if __name__== "__main__":
     parser = argparse.ArgumentParser(add_help = False)
