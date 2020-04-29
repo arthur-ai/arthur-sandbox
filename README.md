@@ -7,8 +7,8 @@ Thanks for checking out the Arthur Examples. In this repo, you'll find sample pr
 If it's your first time onboarding your model to Arthur, check out some of the [example ML projects](./example_projects) to help inspire you. 
 
 #### [Credit Model](./example_projects/credit_risk/README.md)
- * [Quick Onboarding](./example_projects/credit_risk/src/onboard_quick.py)
- * [Full Onboarding](./example_projects/credit_risk/src/onboard_full.py): includes setting up explainability, preparing for datadrift monitoring, and registering sensitive attriutes for bias monitoring.
+ * [Quick Onboarding](example_projects/credit_risk/onboard_quick.py)
+ * [Full Onboarding](example_projects/credit_risk/onboard_full.py): includes setting up explainability, preparing for datadrift monitoring, and registering sensitive attriutes for bias monitoring.
 
 
 ## Guides

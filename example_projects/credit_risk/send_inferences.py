@@ -8,7 +8,7 @@ import logging
 import numpy as np
 from arthurai import ArthurAI, ModelType, InputType, Stage
 
-from model_utils import transformations, load_datasets
+from model_utils import load_datasets
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
@@ -25,8 +25,8 @@ def send_inferences(access_key, api_url, model_name,
     arthur_model = connection.get_model(model_name)
 
     for i in range(X_test.shape[0]):
-        datarecord = transformations(X_test.iloc[i:i+1, :])
-        prediction = sk_model.predict_proba(transformations(datarecord))[0, 1]
+        datarecord = X_test.iloc[i:i+1, :]
+        prediction = sk_model.predict_proba(datarecord)[0, 1]
         ground_truth = Y_test.iloc[i]
         ext_id = str(np.random.randint(1e9))
 
