@@ -1,7 +1,7 @@
 import argparse
 
 from arthurai import ArthurAI, ModelType, InputType, Stage
-from model_utils import transformations, load_datasets
+from model_utils import  load_datasets
 
 MODEL_METADATA = {
             "tags": ["credit"],
@@ -23,7 +23,7 @@ def onboard_model(access_key: str, api_url: str,
     connection = ArthurAI({"access_key": access_key, "url": api_url})
     arthur_model = connection.model(**MODEL_METADATA)
 
-    arthur_model.from_dataframe(transformations(X_train), Stage.ModelPipelineInput)
+    arthur_model.from_dataframe(X_train, Stage.ModelPipelineInput)
     arthur_model.from_dataframe(Y_train, Stage.GroundTruth)
     arthur_model.set_positive_class(1)
 

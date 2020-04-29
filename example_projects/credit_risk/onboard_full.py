@@ -5,8 +5,9 @@ import os
 
 from pathlib import Path
 from arthurai import ArthurAI, ModelType, InputType, Stage
+from arthurai.client.apiv2.arthur_explainer import ArthurExplainer
 
-from model_utils import transformations, load_datasets
+from model_utils import load_datasets
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 MODEL_METADATA = {
@@ -32,7 +33,7 @@ def onboard_model(access_key: str, api_url: str,
 
     # Set up model basics
     logging.info("Setting data schema")
-    arthur_model.from_dataframe(transformations(X_train), Stage.ModelPipelineInput)
+    arthur_model.from_dataframe(X_train, Stage.ModelPipelineInput)
     arthur_model.from_dataframe(Y_train, Stage.GroundTruth)
     arthur_model.set_positive_class(1)
 
@@ -64,19 +65,21 @@ def onboard_model(access_key: str, api_url: str,
                                labels={0: "Creditworthy",
                                        1: "CreditDefault"})
 
-    # Set up explainability
     logging.info("Enabling explainability")
     path = Path(__file__).resolve()
     arthur_model.enable_explainability(
         df=X_train.head(50),
-        project_directory=path.parents[1],
-        requirements_file=os.path.join(path.parents[1], "requirements.txt"),
-        user_predict_function_import_path="xai_entrypoint")
+        project_directory=path.parents[0],
+        requirements_file="requirements.txt",
+        user_predict_function_import_path="xai_entrypoint",
+        explanation_algo=ArthurExplainer.SHAP)
 
     logging.info("Saving model")
     arthur_model.save()
 
-    # Set reference dataset
+    logging.info("Setting reference data")
+    # Note - this step is optional. If you don't upload a reference set, Arthur
+    # will use the first 5000 inferences to set the baseline.
     arthur_model.set_reference_for_stage(Stage.ModelPipelineInput, X_train)
 
 if __name__== "__main__":

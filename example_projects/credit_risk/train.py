@@ -6,13 +6,13 @@ import sys
 from pathlib import Path
 from sklearn.ensemble import RandomForestClassifier
 
-from model_utils import load_datasets, transformations
+from model_utils import load_datasets
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
 def fit_model(training_data_filepath, model_output_path):
-    (X_train, Y_train), (X_test, Y_test) = load_datasets(training_data_filepath, transformations)
+    (X_train, Y_train), (X_test, Y_test) = load_datasets(training_data_filepath)
     model = RandomForestClassifier(n_estimators=500, max_depth=15)
     logging.info(" Beginning model fitting...")
     model.fit(X_train, Y_train)
