@@ -27,7 +27,5 @@ columns_to_select = pipeline_input_attr_names + ['medv', 'medv_ground_truth']
 predicted_dataframe = predicted_dataframe.select(columns_to_select)
 
 # write inferences dataframe to parquet file
-pd_df = predicted_dataframe.toPandas()
-pd_df.to_parquet("./data/batch_inference_files/inferences.parquet")
-
+predicted_dataframe.write.parquet("./data/batch_inference_files/inferences_2.parquet")
 model.send_batch_inferences(directory_path='./data/batch_inference_files/')
