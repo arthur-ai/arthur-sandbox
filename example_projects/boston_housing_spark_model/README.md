@@ -27,5 +27,5 @@ model.enable_explainability(df=train_df, project_directory='.',
                             model_server_num_cpu='2',
                             model_server_memory='500Mi')
 ```
-Note, the minimum amount of cpus which must be allocated for spark models is 2. This must explicitly be defined in the call to `enable_explainability(...)`.
+**Note, the minimum amount of cpus which must be allocated for spark models is 2**. This must explicitly be defined in the call to `enable_explainability(...)`.
 The full `entrypoint.py` example file is provided in this repo. Once these steps are taken and `ArthurModel.save()` is called, the model will be uploaded and intialized with explainability.
