@@ -1,8 +1,12 @@
+import uuid
+
 from arthurai import ArthurAI
 from arthurai import ModelType, InputType, Stage, DataType, ArthurModel
 from arthurai.client.apiv2.arthur_explainer import ArthurExplainer
 from pyspark.sql import SparkSession
 from pyspark.ml import PipelineModel
+from pyspark.sql.functions import udf
+from pyspark.sql.types import StringType
 
 
 spark = SparkSession.builder.appName('app').getOrCreate()
@@ -23,9 +27,24 @@ loaded_model_pipeline = PipelineModel.load("./data/models/boton_housing_spark_mo
 
 # make predictions
 predicted_dataframe = loaded_model_pipeline.transform(test).withColumnRenamed("prediction", "medv")
-columns_to_select = pipeline_input_attr_names + ['medv', 'medv_ground_truth']
-predicted_dataframe = predicted_dataframe.select(columns_to_select)
+
+# In order to send ground truth we must use an external id to match up rows in the ground truth dataframe and
+# inferences dataframe
+uuidUdf= udf(lambda : str(uuid.uuid4()), StringType())
+predicted_dataframe = predicted_dataframe.withColumn('external_id', uuidUdf())
+
+# Now we separate out the inference input dataframe frame and the ground truth dataframe
+pipeline_input_attr_names = [attr.as_dict()['name'] for attr in model.get_attributes_for_stage(Stage.ModelPipelineInput)]
+columns_to_select = pipeline_input_attr_names + ['medv', 'external_id']
+batch_inferences = predicted_dataframe.select(columns_to_select)
+
+# getting ground truth batch dataframe
+columns_to_select = ['medv_ground_truth', 'external_id']
+ground_truth_batch = predicted_dataframe.select(columns_to_select)
 
 # write inferences dataframe to parquet file
-predicted_dataframe.write.parquet("./data/batch_inference_files/inferences_2.parquet")
+batch_inferences.write.parquet("./data/batch_inference_files/batch_inferences.parquet")
+ground_truth_batch.write.parquet("./data/batch_ground_truth_files/ground_truth.parquet")
+
 model.send_batch_inferences(directory_path='./data/batch_inference_files/')
+model.send_batch_ground_truth(directory_path='./data/batch_ground_truth_files/')

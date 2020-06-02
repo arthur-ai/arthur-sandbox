@@ -1,4 +1,4 @@
-arthurai===alpha-1.0.60
+arthurai===alpha-1.0.64
 notebook==6.0.3
 numpy==1.16.4
 pyspark==2.4.5
