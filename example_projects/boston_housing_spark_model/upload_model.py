@@ -34,10 +34,6 @@ model.attribute(
     position=0
 )
 
-# chas and rad were inferred as categorical, lets change those to be continuous
-model.get_attribute('chas', Stage.ModelPipelineInput).set(categorical=False)
-model.get_attribute('rad', Stage.ModelPipelineInput).set(categorical=False)
-
 model.enable_explainability(df=train_df, project_directory='.',
                             user_predict_function_import_path='entrypoint',
                             requirements_file='requirements.txt',
