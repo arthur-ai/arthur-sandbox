@@ -10,8 +10,8 @@ spark = SparkSession.builder.appName('app').getOrCreate()
 data = spark.read.csv('./data/boston_housing.csv', header=True, inferSchema=True)
 train, test = data.randomSplit([0.7, 0.3])
 # save training and testing data
-test.write.parquet("./data/test.parquet")
-train.write.parquet("./data/train.parquet")
+test.write.mode('overwrite').parquet("./data/test.parquet")
+train.write.mode('overwrite').parquet("./data/train.parquet")
 
 # create assmbler and model
 feature_columns = data.columns[:-1] # here we omit the final column

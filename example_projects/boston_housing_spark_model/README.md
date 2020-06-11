@@ -4,13 +4,27 @@ This example model uses the [Boston Housing Datset](https://www.cs.toronto.edu/~
 
 ### Setup 
 
-Create a virtual environment using your favorite environment management tool and install the requirements. As an example,
+Create a virtual environment using your favorite environment management tool and install the requirements. Separately ensure the latest version of ArthurAI SDK is installed. As an example,
 
 ```commandline
 python3 -m venv env
 source env/bin/activate
 
 pip3 install -r requirements.txt
+```
+
+If you do not have pyspark installed locally you can use the provided Dockerfile. The follow util commands will run the python and notebook files within docker:
+<br>
+To run the notebook in the docker container
+```commandline
+./util.sh build
+./util.sh notebook
+```
+
+To run the python scripts in the docker container:
+```commandline
+./util.sh build
+./util.sh [create_model.py, upload_model.py, send_batch_inference.py]
 ```
 
 #### Enable Explainability For a SparkML Model:
