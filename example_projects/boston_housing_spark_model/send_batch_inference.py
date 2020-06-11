@@ -43,8 +43,8 @@ columns_to_select = ['medv_ground_truth', 'external_id']
 ground_truth_batch = predicted_dataframe.select(columns_to_select)
 
 # write inferences dataframe to parquet file
-batch_inferences.write.parquet("./data/batch_inference_files/batch_inferences.parquet")
-ground_truth_batch.write.parquet("./data/batch_ground_truth_files/ground_truth.parquet")
+batch_inferences.write.mode('overwrite').parquet("./data/batch_inference_files/batch_inferences.parquet")
+ground_truth_batch.write.mode('overwrite').parquet("./data/batch_ground_truth_files/ground_truth.parquet")
 
 model.send_batch_inferences(directory_path='./data/batch_inference_files/')
 model.send_batch_ground_truth(directory_path='./data/batch_ground_truth_files/')
