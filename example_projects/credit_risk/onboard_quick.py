@@ -29,6 +29,10 @@ def onboard_model(access_key: str, api_url: str,
 
     arthur_model.save()
 
+    # Note - this step is optional. If you don't upload a reference set, Arthur
+    # will use the first 5000 inferences to set the baseline.
+    arthur_model.set_reference_data(stage=Stage.ModelPipelineInput, data=X_train)
+
 
 if __name__== "__main__":
     parser = argparse.ArgumentParser(add_help = False)
