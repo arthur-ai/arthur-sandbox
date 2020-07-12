@@ -35,7 +35,7 @@ python onboard_quick.py --access_key $ACCESS_KEY  --model_name testy_mctestface_
 
 To get a better sense of the full features available in Arthur, [`onboard_full.py`](./onboard_full.py) shows an example of onboarding the same type of model while also enabling Bias monitoring and Explainability. 
 ```commandline
-python sonboard_full.py --access_key $ACCESS_KEY  --model_name testy_mctestface_1.0.2 --training_data_filepath ./fixtures/datasets/credit_card_default.csv 
+python onboard_full.py --access_key $ACCESS_KEY  --model_name testy_mctestface_1.0.2 --training_data_filepath ./fixtures/datasets/credit_card_default.csv 
 ```
 
 Once you've onboarded a model, log in to the Arthur dashboard to verify that a new model is created and ready to receive data.
