@@ -26,7 +26,7 @@ def send_inferences(access_key, api_url, model_name,
 
     for i in range(X_test.shape[0]):
         datarecord = X_test.iloc[i:i+1, :]
-        prediction = sk_model.predict_proba(datarecord)[0, 1]
+        predicted_probs = sk_model.predict_proba(datarecord)[0]
         ground_truth = Y_test.iloc[i]
         ext_id = str(np.random.randint(1e9))
 
@@ -35,7 +35,7 @@ def send_inferences(access_key, api_url, model_name,
             inference_timestamp=datetime.datetime.utcnow(),
             external_id=ext_id,
             model_pipeline_input=datarecord.to_dict(orient='records')[0],
-            predicted_value=arthur_model.binarize({1: prediction}),
+            predicted_value={1:predicted_probs[1], 0:predicted_probs[0]},
             ground_truth=arthur_model.one_hot_encode(ground_truth)
         )
         time.sleep(np.random.random())
