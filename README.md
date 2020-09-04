@@ -3,6 +3,26 @@
 
 Thanks for checking out the Arthur Examples. In this repo, you'll find sample projects of ML models and how to integrate them with Arthur. You'll also find helpful walkthroughs and guides of how to get the most of our our python client library.
 
+## Installation
+
+Install the SDK via pip: an Arthur engineer should provide you with credentials to install the latest version. For example:
+
+`pip install arthurai==alpha-1.0.VERSION --index-url https://repository.arthur.ai/repository/pypi-virtual/simple`. 
+
+#### Troubleshooting
+
+If you see the following error message:
+
+```
+ERROR: Could not install packages due to an EnvironmentError: HTTPSConnectionPool(host='repository.arthur.ai', port=443): Max retries exceeded with url: <url> (Caused by ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))
+```
+
+You may need to add the `--no-cache` flag when pip installing.
+
+#### Python Versions and Package Management
+
+The `requirements.txt` files in each of the example project directories (`boston_housing_spark_model`, `credit_risk`, `credit_risk_batch`) support python versions `3.6-3.8`.  If using your own model, or if using a python3 version `3.5` or earlier, you will need to update the `requirements.txt` files with compatible package versions. Specifically, ensure that the `requirements.txt` file has the exact package versions you are using in your local environment.
+
 ## Projects
 If it's your first time onboarding your model to Arthur, check out some of the [example ML projects](./example_projects) to help inspire you. 
 
