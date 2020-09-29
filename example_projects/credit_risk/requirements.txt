@@ -1,5 +1,5 @@
-scikit-learn==0.21.3
-pandas==0.24.2
-numpy==1.16.4
+scikit-learn==0.23.2
+pandas==1.0.0
+numpy==1.19.1
 joblib==0.14.0
-arthurai==alpha-1.0.76
+arthurai==alpha-1.0.90.1

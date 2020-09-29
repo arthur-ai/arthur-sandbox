@@ -14,7 +14,10 @@ source env/bin/activate
 pip3 install -r requirements.txt
 ```
 
+Note that the `requirements.txt` file in this directory assumes python versions `3.6-3.8`. If using your own model, or using a python version `3.5` or earlier, you will need to update `requirements.txt` with compatible package versions. Specifically, ensure that `requirements.txt` has the exact package versions you are using locally.
+
 #### Training a model
+
 We'll train a random forest classifier on this dataset. This step is entirely optional, since a pre-trained classifier is already in `fixtures/serialized_models/credit_model.pkl`.
 
 ```commandline
