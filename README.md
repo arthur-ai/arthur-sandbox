@@ -19,6 +19,14 @@ ERROR: Could not install packages due to an EnvironmentError: HTTPSConnectionPoo
 
 You may need to add the `--no-cache` flag when pip installing.
 
+#### Using Pipenv
+You can also install using the included Pipfile:
+1. Export the username of the provided credentials as: `export NEXUS_REPOSITORY_USERNAME=USERNAME`
+1. Export the password of the provided credentials as: `export NEXUS_REPOSITORY_PASSWORD=PASSWORD`
+1. Run the following command to handle the issue noted above: `export PIP_NO_CACHE_DIR=false`
+1. `pipenv install --skip-lock`
+1. To enable virtualenv in your shell do `pipenv shell`
+
 #### Python Versions and Package Management
 
 The `requirements.txt` files in each of the example project directories (`boston_housing_spark_model`, `credit_risk`, `credit_risk_batch`) support python versions `3.6-3.8`.  If using your own model, or if using a python3 version `3.5` or earlier, you will need to update the `requirements.txt` files with compatible package versions. Specifically, ensure that the `requirements.txt` file has the exact package versions you are using in your local environment.
