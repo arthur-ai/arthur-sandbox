@@ -1,0 +1,22 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[[source]]
+url = "https://$NEXUS_REPOSITORY_USERNAME:$NEXUS_REPOSITORY_PASSWORD@repository.arthur.ai/repository/pypi-virtual/simple"
+verify_ssl = true
+name = "arthur"
+
+[dev-packages]
+
+[packages]
+notebook = "==6.0.3"
+numpy = "==1.16.4"
+pyspark = "==2.4.5"
+pandas = "==0.24.2"
+PyYAML = "==5.2"
+arthurai = {version="*", index="arthur"}
+
+[requires]
+python_version = "3.7"
