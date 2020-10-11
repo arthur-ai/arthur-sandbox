@@ -5,9 +5,9 @@ Thanks for checking out the Arthur Examples. In this repo, you'll find sample pr
 
 ## Installation
 
-Install the SDK via pip: an Arthur engineer should provide you with credentials to install the latest version. For example:
+Install the SDK via pip: an Arthur engineer will provide you with credentials to install the latest version. For example:
 
-`pip install arthurai==alpha-1.0.VERSION --index-url https://repository.arthur.ai/repository/pypi-virtual/simple`. 
+`pip install arthurai --index-url https://repository.arthur.ai/repository/pypi-virtual/simple`. 
 
 #### Troubleshooting
 
