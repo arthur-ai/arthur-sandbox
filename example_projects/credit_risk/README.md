@@ -15,7 +15,13 @@ pip3 install -r requirements.txt
 pip3 install arthurai --index-url https://repository.arthur.ai/repository/pypi-virtual/simple
 ```
 
+
 Note that the `requirements.txt` file in this directory assumes python versions `3.6-3.8`. If using your own model, or using a python version `3.5` or earlier, you will need to update `requirements.txt` with compatible package versions. Specifically, ensure that `requirements.txt` has the exact package versions you are using locally.
+
+### Quickstart 
+The notebook [`notebooks/Quickstart.ipynb`](./notebooks/Quickstart.ipynb) shows an example of onboarding a model and sending data. We recommend you start here as you familiarize yourself with the Arthur platform.
+
+After you've looked at the Quickstart, you can look at each component in more depth below:
 
 #### Training a model
 
@@ -26,18 +32,11 @@ python3 train.py  -f ./fixtures/datasets/credit_card_default.csv -m ./fixtures/s
 ```
 
 #### Onboarding a Model
-Examples of how to onboard a model can be found in [`onboard_quick.py`](./onboard_quick.py) and [`onboard_full.py`](./onboard_full.py). Additionally, the notebook [`notebooks/Quickstart.ipynb`](./notebooks/Quickstart.ipynb) shows an example of onboarding a model.
+Examples of how to onboard a model can be found in [`onboard.py`](./onboard.py). Additionally, the notebook [`notebooks/Quickstart.ipynb`](./notebooks/Quickstart.ipynb) shows an example of onboarding a model.
 
-*Onboard Quick*
+*Onboard*
 
-To get a quick understanding of how to onboard a model to the platform, [`onboard_quick.py`](./onboard_quick.py) demonstrates how to get started. Just supply your API key, a model name, and a pointer to an example of the training data.
-```commandline
-python onboard_quick.py --access_key $ACCESS_KEY  --model_name testy_mctestface_1.0.1 --training_data_filepath ./fixtures/datasets/credit_card_default.csv 
-```
-
-*Onboard Full*
-
-To get a better sense of the full features available in Arthur, [`onboard_full.py`](./onboard_full.py) shows an example of onboarding the same type of model while also enabling Bias monitoring and Explainability. 
+[`onboard_full.py`](./onboard_full.py) shows an example of onboarding a model while also enabling Bias monitoring and Explainability. 
 ```commandline
 python onboard_full.py --access_key $ACCESS_KEY  --model_name testy_mctestface_1.0.2 --training_data_filepath ./fixtures/datasets/credit_card_default.csv 
 ```
