@@ -1,23 +1,16 @@
 import logging
 import argparse
 import sys
-import os
+import joblib
 
 from pathlib import Path
-from arthurai import ArthurAI, ModelType, InputType, Stage
+from arthurai import ArthurAI
+from arthurai.client.apiv3 import InputType, OutputType, Stage
 from arthurai.client.apiv2.arthur_explainer import ArthurExplainer
 
 from model_utils import load_datasets
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-MODEL_METADATA = {
-            "tags": ["credit"],
-            "description": """" RandomForest model trained on 2009 Taiwan Credit Default dataset. 
-        https://archive.ics.uci.edu/ml/datasets/default+of+credit+card+clients
-        """,
-            "input_type": InputType.Tabular,
-            "model_type": ModelType.Multiclass
-        }
 
 
 def onboard_model(access_key: str, api_url: str,
@@ -25,45 +18,32 @@ def onboard_model(access_key: str, api_url: str,
     """Example of onboarding a Tabular classification model and also enabling bias
      monitoring for several sensitive attributes as well as enabling explainability."""
 
-    MODEL_METADATA['name'] = model_name
     (X_train, Y_train), _ = load_datasets(training_data_filepath)
 
-    connection = ArthurAI({"access_key": access_key, "url": api_url})
-    arthur_model = connection.model(**MODEL_METADATA)
+    connection = ArthurAI(url=api_url, access_key=access_key, client_version=3)
+    arthur_model = arthur_model = connection.model(partner_model_id=model_name,
+                               input_type=InputType.Tabular,
+                               output_type=OutputType.Multiclass)
 
     # Set up model basics
     logging.info("Setting data schema")
     arthur_model.from_dataframe(X_train, Stage.ModelPipelineInput)
-    arthur_model.from_dataframe(Y_train, Stage.GroundTruth)
-    arthur_model.set_positive_class(1)
+    prediction_to_ground_truth_map = {
+        "prediction_0": "gt_0",
+        "prediction_1": "gt_1"
+    }
+    arthur_model.add_binary_classifier_output_attributes("prediction_1", prediction_to_ground_truth_map)
 
     # Set up bias monitoring for sensitive attributes
     arthur_model.get_attribute("SEX",
                         stage=Stage.ModelPipelineInput).monitor_for_bias = True
     arthur_model.get_attribute("EDUCATION",
                         stage=Stage.ModelPipelineInput).monitor_for_bias = True
-    arthur_model.get_attribute("AGE",
-                        stage=Stage.ModelPipelineInput).monitor_for_bias = True
-    arthur_model.get_attribute("AGE",
-                        stage=Stage.ModelPipelineInput).cutoffs = [35, 55]
 
-    # Supply readable field names for categorical variables
-    arthur_model.set_attribute_labels("SEX",
-                               Stage.ModelPipelineInput,
-                               labels={1: "Male", 2: "Female"})
-    arthur_model.set_attribute_labels("EDUCATION",
-                               Stage.ModelPipelineInput,
-                               labels={1: "Graduate School", 2: "University",
-                                       3: "High School", 4: "Less Than High School",
-                                       5: "Unknown", 6: "Unreported", 0: "Other"})
-    arthur_model.set_attribute_labels("MARRIAGE",
-                               Stage.ModelPipelineInput,
-                               labels={1: "Married", 2: "Single",
-                                       3: "Other", 0: "Unknown"})
-    arthur_model.set_attribute_labels("default payment next month",
-                               Stage.GroundTruth,
-                               labels={0: "Creditworthy",
-                                       1: "CreditDefault"})
+
+
+    logging.info("Saving model")
+    arthur_model.save()
 
     logging.info("Enabling explainability")
     path = Path(__file__).resolve()
@@ -72,15 +52,29 @@ def onboard_model(access_key: str, api_url: str,
         project_directory=path.parents[0],
         requirements_file="requirements.txt",
         user_predict_function_import_path="xai_entrypoint",
+        streaming_explainability_enabled=True,
         explanation_algo=ArthurExplainer.SHAP)
-
-    logging.info("Saving model")
-    arthur_model.save()
 
     logging.info("Setting reference data")
     # Note - this step is optional. If you don't upload a reference set, Arthur
     # will use the first 5000 inferences to set the baseline.
-    arthur_model.set_reference_data(stage=Stage.ModelPipelineInput, data=X_train)
+
+    # load our pre-trained classifier so we can generate predictions
+    sk_model = joblib.load("../fixtures/serialized_models/credit_model.pkl")
+
+    # get all input columns
+    reference_set = X_train.copy()
+
+    # get ground truth labels
+    reference_set["gt_1"] = Y_train
+    reference_set["gt_0"] = 1 - Y_train
+
+    # get model predictions
+    preds = sk_model.predict_proba(X_train)
+    reference_set["prediction_1"] = preds[:, 1]
+    reference_set["prediction_0"] = preds[:, 0]
+
+    arthur_model.set_reference_data(data=reference_set)
 
 if __name__== "__main__":
     parser = argparse.ArgumentParser(add_help = False)

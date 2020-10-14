@@ -47,4 +47,4 @@ batch_inferences.write.mode('overwrite').parquet("./data/batch_inference_files/b
 ground_truth_batch.write.mode('overwrite').parquet("./data/batch_ground_truth_files/ground_truth.parquet")
 
 model.send_batch_inferences(directory_path='./data/batch_inference_files/')
-model.send_batch_ground_truth(directory_path='./data/batch_ground_truth_files/')
+model.send_batch_ground_truths(directory_path='./data/batch_ground_truth_files/')
