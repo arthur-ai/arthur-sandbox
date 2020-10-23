@@ -21,9 +21,9 @@ def onboard_model(access_key: str, api_url: str,
     (X_train, Y_train), _ = load_datasets(training_data_filepath)
 
     connection = ArthurAI(url=api_url, access_key=access_key, client_version=3)
-    arthur_model = arthur_model = connection.model(partner_model_id=model_name,
-                               input_type=InputType.Tabular,
-                               output_type=OutputType.Multiclass)
+    arthur_model = connection.model(partner_model_id=model_name,
+                                    input_type=InputType.Tabular,
+                                    output_type=OutputType.Multiclass)
 
     # Set up model basics
     logging.info("Setting data schema")
@@ -35,12 +35,8 @@ def onboard_model(access_key: str, api_url: str,
     arthur_model.add_binary_classifier_output_attributes("prediction_1", prediction_to_ground_truth_map)
 
     # Set up bias monitoring for sensitive attributes
-    arthur_model.get_attribute("SEX",
-                        stage=Stage.ModelPipelineInput).monitor_for_bias = True
-    arthur_model.get_attribute("EDUCATION",
-                        stage=Stage.ModelPipelineInput).monitor_for_bias = True
-
-
+    arthur_model.get_attribute("SEX", stage=Stage.ModelPipelineInput).monitor_for_bias = True
+    arthur_model.get_attribute("EDUCATION", stage=Stage.ModelPipelineInput).monitor_for_bias = True
 
     logging.info("Saving model")
     arthur_model.save()
@@ -53,14 +49,17 @@ def onboard_model(access_key: str, api_url: str,
         requirements_file="requirements.txt",
         user_predict_function_import_path="xai_entrypoint",
         streaming_explainability_enabled=True,
-        explanation_algo=ArthurExplainer.SHAP)
+        explanation_algo=ArthurExplainer.SHAP,
+        model_server_memory="2G",
+        model_server_num_cpu="2"
+    )
 
     logging.info("Setting reference data")
     # Note - this step is optional. If you don't upload a reference set, Arthur
     # will use the first 5000 inferences to set the baseline.
 
     # load our pre-trained classifier so we can generate predictions
-    sk_model = joblib.load("../fixtures/serialized_models/credit_model.pkl")
+    sk_model = joblib.load("fixtures/serialized_models/credit_model.pkl")
 
     # get all input columns
     reference_set = X_train.copy()
@@ -76,10 +75,11 @@ def onboard_model(access_key: str, api_url: str,
 
     arthur_model.set_reference_data(data=reference_set)
 
-if __name__== "__main__":
-    parser = argparse.ArgumentParser(add_help = False)
-    parser.add_argument("-u", "--api_url", dest="api_url", required = False,
-                        help="The api url", default="dashboard.arthur.ai")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("-u", "--api_url", dest="api_url", required=False,
+                        help="The api url", default="https://app.arthur.ai")
     parser.add_argument("-k", "--access_key", dest="access_key", required=True, help="The api access key")
     parser.add_argument("-n", "--model_name", dest="model_name", required=True, help="Name of model")
     parser.add_argument("-f", "--training_data_filepath", dest="training_data_filepath",

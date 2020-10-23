@@ -11,8 +11,8 @@ Create a virtual environment using your favorite environment management tool and
 python3 -m venv env
 source env/bin/activate
 
-pip3 install -r requirements.txt
 pip3 install arthurai --index-url https://repository.arthur.ai/repository/pypi-virtual/simple
+pip3 install -r requirements.txt
 ```
 
 
@@ -36,9 +36,9 @@ Examples of how to onboard a model can be found in [`onboard.py`](./onboard.py).
 
 *Onboard*
 
-[`onboard_full.py`](./onboard_full.py) shows an example of onboarding a model while also enabling Bias monitoring and Explainability. 
+[`onboard.py`](./onboard.py) shows an example of onboarding a model while also enabling Bias monitoring and Explainability. 
 ```commandline
-python onboard_full.py --access_key $ACCESS_KEY  --model_name testy_mctestface_1.0.2 --training_data_filepath ./fixtures/datasets/credit_card_default.csv 
+python onboard.py --access_key $ACCESS_KEY  --model_name testy_mctestface_1.0.2 --training_data_filepath ./fixtures/datasets/credit_card_default.csv 
 ```
 
 Once you've onboarded a model, log in to the Arthur dashboard to verify that a new model is created and ready to receive data.
