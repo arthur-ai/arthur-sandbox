@@ -35,8 +35,8 @@ The `requirements.txt` files in each of the example project directories (`boston
 If it's your first time onboarding your model to Arthur, check out some of the [example ML projects](./example_projects) to help inspire you. 
 
 #### [Credit Model](./example_projects/credit_risk/README.md)
- * [Quick Onboarding](example_projects/credit_risk/onboard_quick.py)
- * [Full Onboarding](example_projects/credit_risk/onboard_full.py): includes setting up explainability, preparing for datadrift monitoring, and registering sensitive attriutes for bias monitoring.
+ * [Quick Onboarding](example_projects/credit_risk/notebooks/Quickstart.ipynb): Jupyter notebook walking through the steps of onboarding a model. 
+ * [Full Onboarding](example_projects/credit_risk/onboard.py): Simple script to onboard a model, including setting up explainability and registering sensitive attriutes for bias monitoring.
 
 
 ## Guides
