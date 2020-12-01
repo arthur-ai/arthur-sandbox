@@ -11,12 +11,12 @@ import joblib
 
 def create_model():
     """Trains and saves a model.
-    Should be run from `client/v3_demo_clients/medical_classifier` dir
+    Should be run from `example_projects/nlp_medical_transcript_classifier` dir
 
     data taken from https://www.kaggle.com/tboyle10/medicaltranscriptions
     """
     # load data
-    df = pd.read_csv('data/mtsamples.csv').dropna()
+    df = pd.read_csv('datasets/mtsamples.csv').dropna()
     df['medical_specialty'] = df['medical_specialty'].apply(lambda x: x.strip().lower())
     df['transcription'] = df['transcription'].apply(lambda x: x.strip().lower())
     target_labels = ['orthopedic',
@@ -68,8 +68,8 @@ def create_model():
 
     pipeline = make_pipeline(vec, forest)
 
-    joblib.dump(pipeline, 'medical_classifier_model/model.pkl')
-    joblib.dump(enc, 'medical_classifier_model/label_encoder.pkl')
+    joblib.dump(pipeline, 'medical_transcript_model/model.pkl')
+    joblib.dump(enc, 'medical_transcript_model/label_encoder.pkl')
 
 if __name__ == "__main__":
     create_model()
