@@ -13,7 +13,7 @@ source env/bin/activate
 pip3 install -r requirements.txt
 ```
 
-Note that the `requirements.txt` file in this directory assumes python versions `3.6-3.8`. If using your own model, or using a python version `3.5` or earlier, you will need to update `requirements.txt` with compatible package versions. Specifically, ensure that `requirements.txt` has the exact package versions you are using locally.
+Note that the `requirements.txt` file in this directory assumes python versions `3.6-3.8`, these are currently the only supported versions for the arthur SDK.
 
 If you do not have pyspark installed locally you can use the provided Dockerfile. The follow util commands will run the python and notebook files within docker:
 <br>
