@@ -1,46 +1,53 @@
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
-ARG BASE_CONTAINER=jupyter/scipy-notebook
+ARG BASE_CONTAINER=openjdk:11-buster
 FROM $BASE_CONTAINER
 
-LABEL maintainer="Jupyter Project <jupyter@googlegroups.com>"
-
-USER root
+ARG NEXUS_REPOSITORY_USERNAME
+ARG NEXUS_REPOSITORY_PASSWORD
 
 # Spark dependencies
-ENV APACHE_SPARK_VERSION=2.4.5 \
+ENV APACHE_SPARK_VERSION=3.0.1 \
     HADOOP_VERSION=2.7
-
-RUN apt-get -y update && \
-    apt-get install --no-install-recommends -y openjdk-8-jre-headless ca-certificates-java && \
-    rm -rf /var/lib/apt/lists/*
 
 # Using the preferred mirror to download Spark
 RUN cd /tmp && \
-    wget -q $(wget -qO- https://www.apache.org/dyn/closer.lua/spark/spark-${APACHE_SPARK_VERSION}/spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz\?as_json | \
-    python -c "import sys, json; content=json.load(sys.stdin); print(content['preferred']+content['path_info'])") && \
-    echo "2426a20c548bdfc07df288cd1d18d1da6b3189d0b78dee76fa034c52a4e02895f0ad460720c526f163ba63a17efae4764c46a1cd8f9b04c60f9937a554db85d2 *spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz" | sha512sum -c - && \
+    wget -q https://mirrors.gigenet.com/apache/spark/spark-${APACHE_SPARK_VERSION}/spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz && \
     tar xzf spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz -C /usr/local --owner root --group root --no-same-owner && \
     rm spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz
 RUN cd /usr/local && ln -s spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} spark
+
+# Create notebook user
+RUN useradd -ms /bin/sh notebook
+USER notebook
+ENV PATH="/home/notebook/.local/bin:${PATH}"
+WORKDIR /home/notebook
+
+# install miniconda
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+    chmod +x Miniconda3-latest-Linux-x86_64.sh && \
+    ./Miniconda3-latest-Linux-x86_64.sh -b -p ./miniconda && \
+    rm Miniconda3-latest-Linux-x86_64.sh
+# manually install llvmlite from conda
+RUN ./miniconda/bin/conda install -y python==3.7.9 && \
+    ./miniconda/bin/conda install -c conda-forge -y shap==0.37.0
 
 # Configure Spark
 ENV SPARK_HOME=/usr/local/spark
 ENV PYTHONPATH=$SPARK_HOME/python:$SPARK_HOME/python/lib/py4j-0.10.7-src.zip \
     SPARK_OPTS="--driver-java-options=-Xms1024M --driver-java-options=-Xmx4096M --driver-java-options=-Dlog4j.logLevel=info" \
-    PATH=$PATH:$SPARK_HOME/bin
-
-USER $NB_UID
-
-# Install pyarrow
-RUN conda install --quiet -y 'pyarrow' && \
-    conda clean --all -f -y && \
-    fix-permissions $CONDA_DIR && \
-    fix-permissions /home/$NB_USER
+    PATH=$PATH:$SPARK_HOME/bin \
+    PYSPARK_PYTHON=/home/notebook/miniconda/bin/python \
+    PYSPARK_DRIVER_PYTHON=/home/notebook/miniconda/bin/python
 
 # add project specific files
 WORKDIR /app
 
-# leaving python top level so imports all work as they were before
+# check that PyPI args exist
+RUN test -n "$NEXUS_REPOSITORY_USERNAME" && test -n "$NEXUS_REPOSITORY_PASSWORD"
+RUN ~/miniconda/bin/conda run python3 -m pip install --no-cache --extra-index-url https://${NEXUS_REPOSITORY_USERNAME}:${NEXUS_REPOSITORY_PASSWORD}@repository.arthur.ai/repository/pypi-virtual/simple arthurai
+
 COPY . .
-RUN python3 -m pip install -r requirements.txt --no-cache-dir
+RUN ~/miniconda/bin/conda run python3 -m pip install --no-cache-dir -r requirements.txt 
+
+ENTRYPOINT ~/miniconda/bin/conda run --no-capture-output jupyter notebook --no-browser --ip 0.0.0.0

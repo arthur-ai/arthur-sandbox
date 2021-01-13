@@ -2,10 +2,10 @@
 
 cmd=$1
 shift
-echo "$@"
+echo "@"
 
-case $cmd in
-    'build') docker build --no-cache -t pyspark-notebook -f Dockerfile .
+case $cmd in 
+    'build') docker build --build-arg $1 --build-arg $2 -t pyspark-notebook -f Dockerfile .
     ;;
     'run-docker') docker run -it --rm -v $PWD:/app -w /app pyspark-notebook python3 "$@"
     ;;
@@ -16,4 +16,3 @@ case $cmd in
     *) echo "Unknown command: $cmd"; exit 1
     ;;
 esac
-
