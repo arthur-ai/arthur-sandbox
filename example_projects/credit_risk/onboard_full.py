@@ -43,8 +43,7 @@ def onboard_model(access_key: str, api_url: str,
     arthur_model.add_binary_classifier_output_attributes("prediction_1", prediction_to_ground_truth_map)
 
     # Set up bias monitoring for sensitive attributes
-    sex_attr = arthur_model.get_attribute("SEX", stage=Stage.ModelPipelineInput)
-    sex_attr.monitor_for_bias = True
+    sex_attr = arthur_model.get_attribute("SEX", stage=Stage.ModelPipelineInput).monitor_for_bias = True
     arthur_model.get_attribute("EDUCATION", stage=Stage.ModelPipelineInput).monitor_for_bias = True
     arthur_model.get_attribute("AGE",stage=Stage.ModelPipelineInput).monitor_for_bias = True
     arthur_model.get_attribute("AGE", stage=Stage.ModelPipelineInput).cutoffs = [35, 55]
