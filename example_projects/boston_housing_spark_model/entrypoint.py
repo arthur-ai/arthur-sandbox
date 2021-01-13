@@ -19,7 +19,7 @@ loaded_pipeline = PipelineModel.load("./data/models/boton_housing_spark_model_pi
 
 
 def predict(input_data):
-	col_names = ['crim','zn','indus','chas','nox','rm','age','dis','rad','tax','ptratio','b','lstat']
+	col_names = ['crim','zn','indus','chas','nox','rm','age','dis','rad','tax','ptratio','bb','lstat']
 	input_df = pd.DataFrame(input_data, columns=col_names)
 	spark_df = spark.createDataFrame(input_df)
 	predictions = loaded_pipeline.transform(spark_df)

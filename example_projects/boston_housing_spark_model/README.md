@@ -20,9 +20,10 @@ If you do not have pyspark installed locally you can use the provided Dockerfile
 To run the notebook in the docker container
 
 ```commandline
-./util.sh build
+./util.sh build NEXUS_REPOSITORY_USERNAME=<YOUR_USERNAME> NEXUS_REPOSITORY_PASSWORD=<YOUR_PASSWORD>
 ./util.sh notebook
 ```
+Simply substitute your Arthur Nexus PyPI credentials in the `build` call.
 
 To run the python scripts in the docker container:
 ```commandline
