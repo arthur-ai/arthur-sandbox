@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream
-
 # Credit Risk
 
 This example model is based on the [UCI Taiwan Credit dataset](https://archive.ics.uci.edu/ml/datasets/default+of+credit+card+clients). With this dataset, we build a binary classifier for predicting credit default risk from various attributes about payment information and customer demographics. Since this dataset includes  attributes such as Age and Gender, we can also use this example to take a close look at algorithmic fairness. 
