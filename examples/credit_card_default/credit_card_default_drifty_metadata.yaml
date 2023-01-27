@@ -1,0 +1,16 @@
+name: credit_card_default_drifty
+target: default payment next month
+predicted_attributes:
+	- pred_proba_credit_default
+ground_truth_attributes:
+	- ground_truth_credit_default
+unique_id: ID
+sensitive_attributes:
+	- SEX
+	- AGE
+	- EDUCATION
+	- MARRIAGE
+dataset_filetype: csv
+model_filetype: pkl
+predictions_filetype: parquet_gzip
+data_split_test_size: 0.3

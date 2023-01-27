@@ -1,0 +1,5 @@
+papermill==2.3.3
+ipykernel==6.4.2
+nteract-scrapbook==0.4.2
+boto3==1.17.69
+requests==2.26.0

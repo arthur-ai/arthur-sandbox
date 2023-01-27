@@ -1,0 +1,43 @@
+.idea/
+*.pyc
+*.ipynb_checkpoints
+*model_id.txt
+.venv
+*.DS_Store
+**/arthur-api-key.txt
+# downloaded data files
+*.zip
+# extracted image datatsets
+examples/cv_satellite_country_prediction/fmow-data/
+examples/cv_cancer_detection/data/
+examples/cv_object_detection/data/*
+!examples/cv_object_detection/data/train_meta.csv
+!examples/cv_object_detection/data/val_meta.csv
+examples/cv_object_detection/model/*.h5
+examples/boston_housing_spark_model/data/batch_ground_truth_files
+examples/boston_housing_spark_model/data/batch_inference_files
+examples/boston_housing_spark_model/data/models
+
+# cv mars rover
+examples/cv_mars_rover/api-data/*
+!examples/cv_mars_rover/api-data/.empty
+examples/cv_mars_rover/api-data-download/*
+!examples/cv_mars_rover/api-data-download/.empty
+examples/cv_mars_rover/reference-data/*
+!examples/cv_mars_rover/reference-data/.empty
+examples/cv_mars_rover/training/data/*
+!examples/cv_mars_rover/training/data/.empty
+examples/cv_mars_rover/training/runs/*
+examples/cv_mars_rover/training/yolov5*.pt
+examples/cv_mars_rover/runs/*
+examples/cv_mars_rover/yolov5
+examples/cv_mars_rover/model/*
+!examples/cv_mars_rover/model/.empty
+examples/cv_mars_rover/deploy/sagemaker-run-notebook/*
+examples/cv_mars_rover/deploy/lambda-notebook-trigger-deployment.zip
+examples/cv_mars_rover/output_notebooks/
+
+# sagemaker demo
+examples/sagemaker_autogluon/data/*
+examples/sagemaker_autogluon/model/*
+examples/sagemaker_autogluon/arthur_model_id.txt

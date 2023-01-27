@@ -1,0 +1,18 @@
+# https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#core-stacks
+# the link above shows the images that this image is based on. By examining their Dockerfile you can see the list of
+# python requirements that this image inherits. The packages below will be added in addition to those.
+torch==1.8.1
+torchvision==0.9.1
+tensorflow==2.4.1
+Pillow==8.2.0
+boto3==1.17.69
+pandas==1.2.1
+PyYAML==5.2
+joblib==1.0.1
+pytz==2021.1
+opencv-python==4.5.1.48
+scikit-learn==0.24.2
+numpy==1.19.5
+ipywidgets==7.6.3
+ray==1.8.0
+fairlearn==0.7.0

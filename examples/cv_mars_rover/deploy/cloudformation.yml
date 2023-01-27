@@ -1,0 +1,263 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"). You
+# may not use this file except in compliance with the License. A copy of
+# the License is located at
+#
+#     http://aws.amazon.com/apache2.0/
+#
+# or in the "license" file accompanying this file. This file is
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF
+# ANY KIND, either express or implied. See the License for the specific
+# language governing permissions and limitations under the License.
+#
+# Modifications Copyright (C) 2021 ArthurAI
+#
+# A CloudFormation template that sets up the resources you need to run 
+# and schedule the Arthur Mars Jupyter notebook using SageMaker Processing.
+# 
+# This creates the Lambda function "RunArthurMarsNotebook" and IAM roles and policies to be used. The
+# publicly named roles and policies have the region added to the end to allow the template to be run 
+# repeatedly in different regions (e.g., BasicExecuteNotebookRole-us-east-1). Roles and policies that
+# are used internally by the resources are given "anonymous" names by CloudFormation.
+#
+# One of the goals of this template is to promote secure operations by creating roles and
+# policies that enable the desired features in the most minimal way. Feel free to review
+# and modify these policies as appropriate for your use case.
+# 
+# These are the activities supported along with the roles and policies created for them:
+#  
+# The notebook client
+#   When you want to schedule or run a notebook, you are the "client." You might use AWS primitives 
+#   (like `aws lambda invoke ...`), the CLI (like `run-notebook run ...`), the Python library 
+#   (like `run.invoke(...)`), or via the user interface supported in the JupyterLab extension. 
+#   The client will want to run and schedule notebooks, see the status of runs and schedules, and
+#   download the output of the runs from S3. 
+#
+#   This template creates the policy "ExecuteArthurMarsNotebookClient-<region>". You can add this policy to
+#   any IAM role or IAM user to give them all the permissions they need to be a notebook client.
+#   (We also create an anonymous role that isn't really meant to be used but CloudFormation requires
+#   a policy to be attached to a role.)
+#   
+# The running notebook
+#
+#   The notebook is run as a job in the SageMaker Processing Jobs service. There are minimum permissions
+#   you need for that, as defined at https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-roles.html#sagemaker-roles-createprocessingjob-perms.
+#   If your notebook doesn't need any other permissions to run, you can just run it with the 
+#   "BasicExecuteArthurMarsNotebookRole-<region>". If you want your notebook to run with more permissions (e.g.,
+#   you want to access data RDS or run a job in AWS Glue), you can add the policy "ExecuteArthurMarsNotebookContainerPolicy-<region>"
+#   to a role that has the other permissions you want your notebook to have. Note that the "ExecuteArthurMarsNotebookContainerPolicy-<region>"
+#   has all the permissions that you need to attach the job to a VPC. If you don't want these permissions, you can remove the 
+#   sid "vpcattach" from that policy.
+#
+# Executing the Lambda
+# 
+#   When the Lambda is executing, it needs permission to start the SageMaker Processing Job to run the
+#   notebook and give it the role you want it to use. We create an anonymous role for the (the 
+#   "ArthurMarsNotebookLambdaExecutionRole")  and attach it to the Lambda as part of this template.
+#   
+# Building containers for notebook execution
+#
+#   Jobs run in SageMaker Processing Jobs run inside a Docker container. For this project, we have defined
+#   some of the container environment to include a script to set up the environment and run Papermill on the 
+#   input notebook. We provide tools to build and customize this container but working with Docker can be 
+#   challenging. To help with this, the CLI has a function to use CodeBuild to build the container 
+#   in a way you specify and deploy the container to ECR so it can be used in the notebook execution.
+# 
+#   We have created the role "ExecuteArthurMarsNotebookCodeBuildRole-<region>" to use when building the container
+#   that has all the permissions needed to download the description from S3, run the CodeBuild job and
+#   deploy the container to ECR. The `run-notebook create-container ...` command uses this role by default.
+
+Parameters:
+  ArthurURL:
+    Type: String
+    Description: Arthur URL
+    Default: "https://app.arthur.ai"
+  ArthurApiKey:
+    Type: String
+    Description: Arthur API Key
+    NoEcho: true
+  NasaApiKey:
+    Type: String
+    Description: NASA Api Key
+    NoEcho: true
+Resources:
+  ExecuteArthurMarsNotebookClientRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      Description: A minimal role that lets the user run notebooks on demand or on a scheduler
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - sagemaker.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+  ExecuteArthurMarsNotebookClientPolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: {"Fn::Join": ["-", ["ExecuteArthurMarsNotebookClient", {"Ref": "AWS::Region"}]]}
+      Roles: 
+        - !Ref ExecuteArthurMarsNotebookClientRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - sagemaker:ListProcessingJobs
+              - sagemaker:DescribeProcessingJob
+              - sagemaker:StopProcessingJob
+            Resource: '*'
+          - Sid: listrules
+            Effect: Allow
+            Action:
+              - events:ListRules
+            Resource: '*'
+          - Sid: runarthurmarsnotebookrule
+            Effect: Allow
+            Action:
+              - events:DeleteRule
+              - events:PutTargets
+              - events:RemoveTargets
+              - events:DescribeRule
+              - events:EnableRule
+              - events:PutRule
+              - events:ListTargetsByRule
+              - events:DisableRule
+            Resource: 'arn:aws:events:*:*:rule/RunArthurMarsNotebook*'
+          - Sid: runarthurmarsnotebooklambda
+            Effect: Allow
+            Action:
+              - lambda:AddPermission
+              - lambda:InvokeFunction
+              - lambda:InvokeAsync
+              - lambda:RemovePermission
+            Resource: 'arn:aws:lambda:*:*:function:RunArthurMarsNotebook'
+          - Sid: s3xfer
+            Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+            Resource: 
+              - 'arn:aws:s3:::*SageMaker*'
+              - 'arn:aws:s3:::*Sagemaker*'
+              - 'arn:aws:s3:::*sagemaker*'
+          - Sid: s3create
+            Effect: Allow
+            Action:
+              - s3:CreateBucket
+            Resource: '*'
+  BasicExecuteArthurMarsNotebookRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: {"Fn::Join": ["-", ["BasicExecuteArthurMarsNotebookRole", {"Ref": "AWS::Region"}]]}
+      Description: A minimal role used as the default for running the notebook container in SageMaker Processing
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - sagemaker.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+  ExecuteArthurMarsNotebookContainerPolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: {"Fn::Join": ["-", ["ExecuteArthurMarsNotebookContainerPolicy", {"Ref": "AWS::Region"}]]}
+      Roles: 
+        - !Ref BasicExecuteArthurMarsNotebookRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - cloudwatch:PutMetricData
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              - logs:CreateLogGroup
+              - logs:DescribeLogStreams
+              - ecr:GetAuthorizationToken
+              - ecr:BatchCheckLayerAvailability
+              - ecr:GetDownloadUrlForLayer
+              - ecr:BatchGetImage
+            Resource: '*'
+          - Sid: s3xfer
+            Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:ListBucket
+              - s3:PutObject
+            Resource: 
+              - 'arn:aws:s3:::*SageMaker*'
+              - 'arn:aws:s3:::*Sagemaker*'
+              - 'arn:aws:s3:::*sagemaker*'
+          - Sid: vpcattach
+            Effect: Allow
+            Action:
+              - ec2:CreateNetworkInterface
+              - ec2:DeleteNetworkInterface
+              - ec2:CreateNetworkInterfacePermission
+              - ec2:DeleteNetworkInterface
+              - ec2:DeleteNetworkInterfacePermission
+              - ec2:DescribeNetworkInterfaces
+              - ec2:DescribeVpcs
+              - ec2:DescribeDhcpOptions
+              - ec2:DescribeSubnets
+              - ec2:DescribeSecurityGroups
+            Resource: '*'
+  ArthurMarsNotebookLambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      Description: The role for running the Arthurs Mars Notebook lambda
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: 
+                  - sagemaker:CreateProcessingJob
+                  - iam:PassRole
+                Resource: '*'
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  InvokeArthurMarsNotebookLambdaFromEventBridge:
+    Type: AWS::Lambda::Permission
+    DependsOn: InvokeArthurMarsNotebookLambda
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: RunArthurMarsNotebook
+      Principal: events.amazonaws.com
+      SourceArn: {"Fn::Join": [":", ["arn:aws:events", {"Ref": "AWS::Region"}, {"Ref": "AWS::AccountId"}, "rule/RunArthurMarsNotebook-*"]]}
+  InvokeArthurMarsNotebookLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: RunArthurMarsNotebook
+      Description: A function to run Arthur Jupyter notebooks using SageMaker processing jobs
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.7
+      Role: {"Fn::GetAtt" : ["ArthurMarsNotebookLambdaExecutionRole", "Arn"] }
+      Timeout: 30
+      Code:
+        S3Bucket: s3-bucket-arthur-public
+        S3Key: mars/lambda-notebook-trigger-deployment.zip
+      Environment:
+        Variables:
+          ARTHUR_ENDPOINT_URL:
+            Ref: ArthurURL
+          ARTHUR_API_KEY:
+            Ref: ArthurApiKey
+          NASA_API_KEY:
+            Ref: NasaApiKey
