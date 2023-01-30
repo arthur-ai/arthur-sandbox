@@ -30,7 +30,7 @@ applications. See the table below for a reference of examples in this repository
 
 ### Examples Directory
 
-| Example             | Input Type  | Output Type      | Inference Type | Data Storage     | Model Storage   | Arthur features | Frameworks |
+| Example             | Input Type  | Output Type      | Inference Type | Data Storage     | Model Storage   | Arthur Features | Frameworks |
 | ------------------- | ----------- | ---------------- | -------------- | ---------------- | --------------- | --------------- | ---------- |
 | [Credit Card Default](./examples/credit_card_default/credit_card_default.ipynb)         | Tabular     | Binary           | Batch & stream | Local            | Local           | Performance, Drift, Visualization, Alerts, Bias, Explainability, Anomaly Detection, Hotspots, Bias Mitigation | Scikit-Learn    |
 | [MEPS Healthcare](./examples/healthcare_utilization/FullGuide.ipynb)     | Tabular     | Binary           | Stream         | Local            | Local           | Explainability | Scikit-Learn, NLTK |
