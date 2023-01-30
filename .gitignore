@@ -7,6 +7,8 @@
 **/arthur-api-key.txt
 # downloaded data files
 *.zip
+**/arthur_s3_data
+
 # extracted image datatsets
 examples/cv_satellite_country_prediction/fmow-data/
 examples/cv_cancer_detection/data/
@@ -41,3 +43,6 @@ examples/cv_mars_rover/output_notebooks/
 examples/sagemaker_autogluon/data/*
 examples/sagemaker_autogluon/model/*
 examples/sagemaker_autogluon/arthur_model_id.txt
+
+# scratch folder
+scratch/
