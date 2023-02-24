@@ -11,14 +11,19 @@ from pyspark.sql.types import StringType
 
 spark = SparkSession.builder.appName('app').getOrCreate()
 
-client = ArthurAI(url='app.arthur.ai', access_key='<access_key>')
+# connect to Arthur
+# UNCOMMENT the two lines below and enter your details
+arthur = ArthurAI(
+    # url="https://app.arthur.ai",  # you can also pass this through the ARTHUR_ENDPOINT_URL environment variable
+    # login="<YOUR_USERNAME_OR_EMAIL>",  # you can also pass this through the ARTHUR_LOGIN environment variable
+)
 
 # lets make inferences on the test data and then send to Arthur
 # first lets rename the medv column to be the ground truth column
 test = spark.read.parquet("./data/test.parquet")
 test = test.withColumnRenamed("medv","medv_ground_truth")
 
-model = client.get_model_by_name("boston_housing_model")
+model = arthur.get_model_by_name("boston_housing_model")
 
 pipeline_input_attr_names = [attr.as_dict()['name'] for attr in model.get_attributes_for_stage(Stage.ModelPipelineInput)]
 
